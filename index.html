@@ -2,7 +2,7 @@
 <html lang="es-AR">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Sumate como Agente GES</title>
 <meta name="description" content="Postulación para sumarte como Agente GES · Gastón Escriña Propiedades · Zona Oeste">
 <meta name="theme-color" content="#23527C">
@@ -33,9 +33,10 @@
   }
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{margin:0;height:100%;overflow:hidden}
+html,body{margin:0;height:100%;overflow:hidden;background:#EEF1F2;overscroll-behavior:none}
+@media (prefers-color-scheme: dark){html,body{background:#0F151B}}
 body{background:var(--bg);color:var(--ink);font:16px/1.5 "Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
-.app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:620px;margin:0 auto;background:var(--bg)}
+.app{position:fixed;left:0;right:0;top:0;height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:620px;margin:0 auto;background:var(--bg)}
 /* Barra superior tipo app */
 .top{flex:none;background:var(--accent);color:var(--accent-ink);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 0}
 .top-row{display:flex;align-items:center;gap:12px}
@@ -65,7 +66,7 @@ body{background:var(--bg);color:var(--ink);font:16px/1.5 "Source Sans 3",system-
 .opt:focus-visible,.send:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
 .row{display:flex;gap:8px;align-items:flex-end}
 /* 16px mínimo: evita el zoom automático de iPhone al tocar el campo */
-textarea,input{flex:1;font:16px/1.4 inherit;font-family:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:11px 16px;min-width:0;resize:none;min-height:46px;max-height:140px}
+textarea,input{flex:1;font-family:inherit;font-size:16px;line-height:1.4;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:11px 16px;min-width:0;resize:none;min-height:46px;max-height:140px}
 .send{font:600 15px/1 "Source Sans 3",sans-serif;background:var(--accent);color:var(--accent-ink);border:0;border-radius:23px;padding:0 18px;cursor:pointer;min-height:46px;flex:none}
 .hint{font-size:13px;color:var(--muted)}
 .err{font-size:13px;color:#B3261E;padding-left:8px}
@@ -185,7 +186,17 @@ const A={}; let i=0;
 const total=Q.filter(q=>!q.intro&&!q.sub).length;
 const scroll=()=>requestAnimationFrame(()=>chat.scrollTo({top:chat.scrollHeight,behavior:reduce?"auto":"smooth"}));
 // Si el teclado del celular achica la pantalla, mantener visible el último mensaje
-if(window.visualViewport) visualViewport.addEventListener("resize",()=>{document.querySelector(".app").style.height=visualViewport.height+"px";scroll();});
+// Cuando aparece o se va el teclado del celular, la app ocupa exactamente la parte visible
+const appEl=document.querySelector(".app");
+function fitViewport(){
+  const vv=window.visualViewport; if(!vv) return;
+  appEl.style.height=vv.height+"px";
+  appEl.style.top=vv.offsetTop+"px";
+  window.scrollTo(0,0);
+  scroll();
+}
+if(window.visualViewport){visualViewport.addEventListener("resize",fitViewport);visualViewport.addEventListener("scroll",fitViewport);}
+document.addEventListener("focusout",()=>setTimeout(fitViewport,120));
 
 function add(cls,text,html){
   const d=document.createElement("div"); d.className="msg "+cls;
