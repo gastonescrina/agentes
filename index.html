@@ -107,8 +107,9 @@ const Q = [
   {id:"nombre", type:"name", intro:true, q:"¡Hola! Gracias por tu interés en sumarte a GES Agentes. Primero te pedimos tres datos para identificar tu postulación y, después, te hacemos cinco preguntas breves. Usaremos tu celular para contactarte por esta búsqueda.\n\n¿Cuál es tu nombre y apellido?", ph:"Nombre y apellido"},
   {id:"edad", type:"age", intro:true, q:n=>`Gracias, ${n}. ¿Qué edad tenés?`, ph:"Edad"},
   {id:"tel", type:"tel", intro:true, q:"¿Cuál es tu número de celular con código de área?", ph:"Ej: 11 2345 6789"},
-  {id:"exp", type:"long", q:n=>`Gracias. ¿A qué te dedicás hoy y qué experiencia tenés en ventas o en el rubro inmobiliario?`, ph:"Contanos brevemente…",
-    kw:["venta","vend","comercial","inmobiliar","propiedad","cliente","atención","asesor","captac","tasac","corredor","martiller","negocio","comision"], flagWhy:"Poca experiencia comercial"},
+  {id:"ventas", q:n=>`Gracias. ¿Cuánta experiencia tenés en ventas? Cuenta cualquier rubro, no solo inmobiliario.`, opts:[
+    ["Ninguna",0],["Menos de 1 año",1],["De 1 a 3 años",2],["Más de 3 años",3]]},
+  {id:"exp", type:"long", sub:true, q:()=> (A.ventas&&A.ventas.p>=1) ? "¿Dónde trabajaste en ventas y a qué te dedicás hoy?" : "¿A qué te dedicás hoy?", ph:"Contanos brevemente…"},
   {id:"zona", type:"long", q:"¿En qué zonas podrías trabajar y cuánto tiempo podrías dedicarle por semana?", ph:"Ej: Ituzaingó y Castelar, 30 hs por semana",
     kw:["ituzaing","castelar","leloir","morón","moron","haedo","padua","merlo","udaondo","hurlingham","moreno","oeste","country","barrio"], hours:true},
   {id:"adn", type:"long", q:"Si tuvieras que conseguir tu primera propiedad para ofrecer, ¿cómo empezarías?", ph:"Contanos con detalle…"},
@@ -283,8 +284,13 @@ function evaluate(){
   let got=0,max=0; const flags=[];
   Q.forEach(q=>{const a=A[q.id]; if(a&&typeof a.p==="number"){got+=a.p;max+=3;} if(a&&a.flag) flags.push(a.flag);});
   const pct=Math.round(got/max*100);
-  const hard=flags.some(f=>f.level==="hard");
-  const color = (pct>=75 && flags.length===0) ? "V" : (!hard && pct>=55 && flags.length<=2) ? "A" : "R";
+  // SEMÁFORO
+  // Rojo: sin experiencia en ventas, menos de 1 año, o busca sueldo fijo
+  // Verde: 25 años o más + al menos 1 año en ventas
+  // Amarillo: menor de 25 + al menos 1 año en ventas
+  const edad=parseInt(A.edad.v,10), anios=A.ventas.p;   // 0 ninguna, 1 menos de 1 año, 2 de 1 a 3, 3 más de 3
+  const sueldoFijo=A.modelo && A.modelo.p===0;
+  const color = (sueldoFijo || anios<2) ? "R" : edad>=25 ? "V" : "A";
   return {pct,color,flags};
 }
 
@@ -314,7 +320,7 @@ async function finish(){
   };
   scroll();
 }
-const LABELS={exp:"Hoy y experiencia",zona:"Zonas y horas",adn:"Primera propiedad",leads:"Qué busca",modelo:"Esquema sin sueldo fijo",dudas:"Dudas"};
+const LABELS={ventas:"Experiencia en ventas",exp:"Hoy y experiencia",zona:"Zonas y horas",adn:"Primera propiedad",leads:"Qué busca",modelo:"Esquema sin sueldo fijo",dudas:"Dudas"};
 function label(q){return LABELS[q.id]||q.id}
 
 if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
