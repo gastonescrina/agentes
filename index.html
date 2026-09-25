@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="es-AR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,interactive-widget=resizes-content">
+<title>Sumate como Agente GES</title>
+<meta name="description" content="Postulación para sumarte como Agente GES · Gastón Escriña Propiedades · Zona Oeste">
+<meta name="theme-color" content="#23527C">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Agentes GES">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:title" content="Sumate como Agente GES">
+<meta property="og:description" content="5 preguntas · 3 minutos · Gastón Escriña Propiedades, Zona Oeste">
+<meta property="og:image" content="icon-512.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root{
+  --bg:#EEF1F2; --surface:#FFFFFF; --ink:#18232E; --muted:#5B6873; --line:#D5DBDF;
+  --accent:#23527C; --accent-ink:#FFFFFF; --accent-soft:#E1EAF2; --bot:#FFFFFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme:dark;
+    --bg:#0F151B; --surface:#172029; --ink:#E7ECEF; --muted:#9AA7B2; --line:#2A3641;
+    --accent:#6FA3D2; --accent-ink:#0F151B; --accent-soft:#1D2D3C; --bot:#1B2530;
+  }
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 "Source Sans 3",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+.app{height:100vh;height:100dvh;display:flex;flex-direction:column;max-width:620px;margin:0 auto;background:var(--bg)}
+/* Barra superior tipo app */
+.top{flex:none;background:var(--accent);color:var(--accent-ink);padding:calc(10px + env(safe-area-inset-top,0px)) 16px 0}
+.top-row{display:flex;align-items:center;gap:12px}
+.mark{width:42px;height:42px;border-radius:50%;background:var(--accent-ink);color:var(--accent);display:grid;place-items:center;font:700 14px/1 "Bricolage Grotesque",sans-serif;letter-spacing:.04em;flex:none}
+.top h1{margin:0;font:700 17px/1.2 "Bricolage Grotesque",sans-serif}
+.top p{margin:1px 0 0;font-size:13px;opacity:.85}
+.meta{display:flex;align-items:center;gap:10px;padding:10px 0 10px}
+.progress{flex:1;height:4px;background:rgba(255,255,255,.28);border-radius:4px;overflow:hidden}
+.progress span{display:block;height:100%;width:0;background:var(--accent-ink);transition:width .4s ease}
+.step{font-size:12px;letter-spacing:.05em;text-transform:uppercase;font-variant-numeric:tabular-nums;white-space:nowrap;opacity:.9}
+/* Chat */
+#chat{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;display:flex;flex-direction:column;gap:10px;padding:16px}
+.msg{max-width:86%;padding:10px 14px;border-radius:16px;white-space:pre-line;overflow-wrap:anywhere;animation:in .25s ease both;box-shadow:0 1px 1px rgba(0,0,0,.05)}
+.bot{background:var(--bot);border:1px solid var(--line);align-self:flex-start;border-bottom-left-radius:4px}
+.me{background:var(--accent);color:var(--accent-ink);align-self:flex-end;border-bottom-right-radius:4px}
+@keyframes in{from{opacity:.2;transform:translateY(4px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.msg{animation:none}.progress span{transition:none}}
+.typing{display:inline-flex;gap:4px;padding:4px 0}
+.typing i{width:7px;height:7px;border-radius:50%;background:var(--muted);animation:b 1s infinite}
+.typing i:nth-child(2){animation-delay:.15s}.typing i:nth-child(3){animation-delay:.3s}
+@keyframes b{0%,100%{opacity:.3}50%{opacity:1}}
+/* Barra inferior */
+#input{flex:none;background:var(--surface);border-top:1px solid var(--line);padding:10px 12px calc(10px + env(safe-area-inset-bottom,0px));display:flex;flex-direction:column;gap:8px;max-height:60%;overflow-y:auto}
+#input:empty{display:none}
+.opt{text-align:left;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;cursor:pointer;min-height:48px}
+.opt:active{border-color:var(--accent);background:var(--accent-soft)}
+.opt:focus-visible,.send:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.row{display:flex;gap:8px;align-items:flex-end}
+/* 16px mínimo: evita el zoom automático de iPhone al tocar el campo */
+textarea,input{flex:1;font:16px/1.4 inherit;font-family:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:22px;padding:11px 16px;min-width:0;resize:none;min-height:46px;max-height:140px}
+.send{font:600 15px/1 "Source Sans 3",sans-serif;background:var(--accent);color:var(--accent-ink);border:0;border-radius:23px;padding:0 18px;cursor:pointer;min-height:46px;flex:none}
+.hint{font-size:13px;color:var(--muted)}
+.err{font-size:13px;color:#B3261E;padding-left:8px}
+.final{display:flex;flex-direction:column;gap:8px}
+.final a.send{display:grid;place-items:center;text-decoration:none;min-height:50px;font-size:16px}
+.ghost{background:transparent;color:var(--accent);border:1px solid var(--line)}
+pre.sum{white-space:pre-wrap;font:13px/1.45 ui-monospace,Menlo,Consolas,monospace;background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:12px;margin:0;max-height:100px;overflow:auto}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div class="top-row">
+      <div class="mark" aria-hidden="true">GES</div>
+      <div>
+        <h1>Sumate como Agente GES</h1>
+        <p>Gastón Escriña Propiedades · Zona Oeste</p>
+      </div>
+    </div>
+    <div class="meta">
+      <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+      <div class="step" id="step">5 preguntas · 3 min</div>
+    </div>
+  </header>
+  <main id="chat" aria-live="polite"></main>
+  <div id="input"></div>
+</div>
+
+<script>
+/* ======= CONFIGURACIÓN ======= */
+// WhatsApp de RECLUTAMIENTO en formato internacional sin + ni espacios.
+const WHATSAPP = "5491154716862";
+const WA_SHOW  = "11 5471-6862";
+
+/* ======= PREGUNTAS (basadas en GES 07 · Selección e Incorporación) ======= */
+// pts: puntaje 0-3. flag: "soft" (alerta) o "hard" (alerta fuerte, fuerza semáforo rojo).
+const Q = [
+  {id:"nombre", type:"name", intro:true, q:"¡Hola! Gracias por tu interés en sumarte a GES Agentes. Primero te pedimos tres datos para identificar tu postulación y, después, te hacemos cinco preguntas breves. Usaremos tu celular para contactarte por esta búsqueda.\n\n¿Cuál es tu nombre y apellido?", ph:"Nombre y apellido"},
+  {id:"edad", type:"age", intro:true, q:n=>`Gracias, ${n}. ¿Qué edad tenés?`, ph:"Edad"},
+  {id:"tel", type:"tel", intro:true, q:"¿Cuál es tu número de celular con código de área?", ph:"Ej: 11 2345 6789"},
+  {id:"exp", type:"long", q:n=>`Gracias. ¿A qué te dedicás hoy y qué experiencia tenés en ventas o en el rubro inmobiliario?`, ph:"Contanos brevemente…",
+    kw:["venta","vend","comercial","inmobiliar","propiedad","cliente","atención","asesor","captac","tasac","corredor","martiller","negocio","comision"], flagWhy:"Poca experiencia comercial"},
+  {id:"zona", type:"long", q:"¿En qué zonas podrías trabajar y cuánto tiempo podrías dedicarle por semana?", ph:"Ej: Ituzaingó y Castelar, 30 hs por semana",
+    kw:["ituzaing","castelar","leloir","morón","moron","haedo","padua","merlo","udaondo","hurlingham","moreno","oeste","country","barrio"], hours:true},
+  {id:"adn", type:"long", q:"Si tuvieras que conseguir tu primera propiedad para ofrecer, ¿cómo empezarías?", ph:"Contanos con detalle…"},
+  {id:"leads", q:"¿Qué buscás al sumarte a una inmobiliaria?", opts:[
+    ["Desarrollar mi propia cartera",3],["Ambas cosas",2],["Trabajar consultas que me asignen",0,"soft","Espera que la oficina le asigne consultas"]]},
+  {id:"modelo", q:"En GES la colaboración es independiente, por comisiones, sin sueldo fijo ni leads generales garantizados. ¿Te interesa trabajar con ese esquema?", opts:[
+    ["Sí, me interesa",3],["Sí, aunque tengo algunas dudas",2],["No, necesito un sueldo fijo",0,"hard","Busca sueldo fijo"]]},
+  {id:"dudas", type:"long", sub:true, optional:true, q:"¿Qué dudas te genera?", ph:"Si no tenés dudas, dejalo vacío"}
+];
+
+/* ======= Evaluación de la pregunta ADN ======= */
+const ADN_KEYS=["contact","conocid","referid","vecin","llam","red","instagram","facebook","lista","propietari","recorr","barrio","cartel","volante","prospect","amig","famil","base","whatsapp","agenda","tasa","visit","zona","particular","dueñ"];
+function scoreAdn(t){
+  const s=t.toLowerCase(); const words=s.split(/\s+/).filter(Boolean).length;
+  const hits=ADN_KEYS.filter(k=>s.includes(k)).length;
+  if(/esper|que me (pasen|den)|clientes de la (oficina|inmobiliaria)/.test(s) && hits<2) return {p:0,flag:"Espera recibir clientes"};
+  let p = hits>=3 ? (words>=15||hits>=5 ? 3 : 2) : hits===2 ? 2 : hits===1 ? 1 : 0;
+  return {p, flag: p<=1 ? "No describe cómo generaría sus primeros contactos" : null};
+}
+
+/* ======= Puntaje de respuestas abiertas (orientativo) ======= */
+function weeklyHours(s){
+  const m=[...s.matchAll(/(\d{1,2})(?:\s*(?:a|-)\s*(\d{1,2}))?\s*(?:h\b|hs\b|horas?\b)([^.,;]{0,25})/g)];
+  if(!m.length){
+    if(/medio d[ií]a|media jornada|part.?time/.test(s)) return 20;
+    if(/tiempo completo|full.?time|todo el d[ií]a|jornada completa/.test(s)) return 40;
+    return null;
+  }
+  let best=0;
+  m.forEach(x=>{
+    const n=x[2]?Math.round((+x[1]+ +x[2])/2):+x[1];
+    const daily=/diari|por d[ií]a|al d[ií]a|cada d[ií]a|x d[ií]a/.test(x[3]||"") || (!/semana/.test(x[3]||"") && n<=10 && /diari|por d[ií]a|al d[ií]a/.test(s));
+    const dias=(s.match(/(\d)\s*d[ií]as/)||[])[1];
+    const w = daily ? n*(dias?+dias:5) : n;
+    best=Math.max(best,w);
+  });
+  return best;
+}
+function scoreKw(item,t){
+  const s=t.toLowerCase(); const hits=item.kw.filter(k=>s.includes(k)).length;
+  if(item.hours){
+    const h=weeklyHours(s);
+    const hp = h===null?2 : h>=30?3 : h>=15?2 : 1;
+    const inZone = hits>=1;
+    const flag = h!==null&&h<15 ? {level:"soft",why:"Poca disponibilidad semanal"} : (!inZone?{level:"soft",why:"Zona fuera de Zona Oeste"}:null);
+    return {p: inZone?hp:Math.min(hp,1), flag};
+  }
+  if(item.id==="exp"){
+    const inmo=/inmobiliar|corredor|martiller|bienes ra[ií]ces|real estate/.test(s);
+    const years=[...s.matchAll(/(\d{1,2})\s*(a[ñn]os?)/g)].map(x=>+x[1]);
+    const ventas=/venta|vend|comercial|asesor|comision/.test(s);
+    let p;
+    if(inmo) p = years.some(y=>y>=1) ? 3 : 2;
+    else if(ventas) p = years.some(y=>y>=2) ? 3 : 2;
+    else p = hits>=1 ? 1 : 0;
+    return {p, flag: p===0?{level:"soft",why:item.flagWhy}:null};
+  }
+  const p = hits>=3?3 : hits===2?2 : hits===1?1 : 0;
+  return {p, flag: p===0?{level:"soft",why:item.flagWhy}:null};
+}
+
+/* ======= Celular argentino con código de área ======= */
+function normTel(v){
+  let d=v.replace(/\D/g,"");
+  d=d.replace(/^00/,"").replace(/^54/,"").replace(/^9(?=\d{10}$)/,"").replace(/^0/,"");
+  if(d.length===12){ const m=d.match(/^(\d{2,4})15(\d{6,8})$/); if(m && (m[1]+m[2]).length===10) d=m[1]+m[2]; }
+  if(d.length!==10) return null;
+  return d.startsWith("11") ? `11 ${d.slice(2,6)}-${d.slice(6)}` : d;
+}
+
+/* ======= Motor del chat ======= */
+const chat=document.getElementById("chat"), inp=document.getElementById("input"), bar=document.getElementById("bar"), stepEl=document.getElementById("step");
+const reduce=matchMedia("(prefers-reduced-motion: reduce)").matches;
+const A={}; let i=0;
+const total=Q.filter(q=>!q.intro&&!q.sub).length;
+const scroll=()=>requestAnimationFrame(()=>chat.scrollTo({top:chat.scrollHeight,behavior:reduce?"auto":"smooth"}));
+// Si el teclado del celular achica la pantalla, mantener visible el último mensaje
+if(window.visualViewport) visualViewport.addEventListener("resize",()=>{document.querySelector(".app").style.height=visualViewport.height+"px";scroll();});
+
+function add(cls,text,html){
+  const d=document.createElement("div"); d.className="msg "+cls;
+  if(html) d.innerHTML=html; else d.textContent=text;
+  chat.appendChild(d); scroll(); return d;
+}
+function typing(ms){
+  return new Promise(r=>{
+    if(reduce||ms===0) return r();
+    const t=add("bot","",'<span class="typing" aria-label="Escribiendo"><i></i><i></i><i></i></span>');
+    setTimeout(()=>{t.remove();r();},ms);
+  });
+}
+function progress(){
+  const done=Q.slice(0,i).filter(q=>!q.intro&&!q.sub).length;
+  const cur=Q[i]&&Q[i].sub ? done : done+1;
+  bar.style.width=Math.round(done/total*100)+"%";
+  stepEl.textContent = Q[i]&&Q[i].intro ? "5 preguntas · 3 min" : i<Q.length ? `Pregunta ${cur} de ${total}` : "Listo";
+}
+
+async function ask(first){
+  progress();
+  if(i>=Q.length) return finish();
+  const item=Q[i];
+  await typing(first?0:600);
+  add("bot", typeof item.q==="function"?item.q(A.nombre.v.split(" ")[0]):item.q);
+  render(item);
+}
+
+function render(item){
+  inp.innerHTML="";
+  if(item.opts){
+    item.opts.forEach(([label,pts,flag,why])=>{
+      const b=document.createElement("button"); b.className="opt"; b.type="button"; b.textContent=label;
+      b.onclick=()=>answer(item,{v:label,p:pts,flag:flag?{level:flag,why}:null});
+      inp.appendChild(b);
+    });
+    scroll();
+    return;
+  }
+  const row=document.createElement("form"); row.className="row";
+  const f=document.createElement(item.type==="long"?"textarea":"input");
+  if(item.type==="age"){f.type="number";f.min="18";f.max="90";f.inputMode="numeric";}
+  else if(item.type==="tel"){f.type="tel";f.inputMode="tel";f.autocomplete="tel-national";}
+  else if(item.type==="name"){f.type="text";f.autocomplete="name";f.autocapitalize="words";}
+  else {f.rows=2;f.enterKeyHint="send";}
+  f.placeholder=item.ph||""; f.setAttribute("aria-label",item.ph||"Respuesta");
+  const s=document.createElement("button"); s.className="send"; s.type="submit"; s.textContent="Enviar";
+  const err=document.createElement("div"); err.className="err"; err.hidden=true;
+  row.append(f,s); inp.append(row,err);
+  // No se abre el teclado solo en celular al arrancar: solo en computadora
+  if(matchMedia("(pointer:fine)").matches) f.focus({preventScroll:true});
+  if(item.type==="long"){
+    const grow=()=>{f.style.height="auto";f.style.height=Math.min(f.scrollHeight,140)+"px";};
+    f.addEventListener("input",grow);
+    f.addEventListener("keydown",e=>{if(e.key==="Enter"&&(e.ctrlKey||e.metaKey)) row.requestSubmit();});
+  }
+  row.addEventListener("submit",e=>{
+    e.preventDefault(); const v=f.value.trim();
+    const clarify=m=>{ add("me",v||"…"); add("bot",m); f.value=""; f.focus({preventScroll:true}); };
+    if(!v && !item.optional){ err.textContent="Escribí tu respuesta para seguir."; err.hidden=false; return; }
+    if(item.type==="name" && v.split(/\s+/).filter(w=>w.length>1).length<2) return clarify("¿Me pasás también tu apellido? Así identificamos bien tu postulación.");
+    if(item.type==="age" && !(+v>=18 && +v<=90)) return clarify("No llegué a entender tu edad. ¿Me la escribís solo en números? Por ejemplo: 32.");
+    let tel=null;
+    if(item.type==="tel"){ tel=normTel(v); if(!tel) return clarify("No llegué a entender el número. ¿Me lo pasás con código de área, sin el 0 ni el 15? Por ejemplo: 11 2345 6789."); }
+    if(!item.optional && item.type==="long" && v.split(/\s+/).length<4) return clarify("¿Me contás un poco más? Con una o dos frases alcanza.");
+    let res={v:v||"(sin respuesta)"}; if(item.type==="age") res.v=v+" años"; if(tel) res.v=tel;
+    if(item.id==="adn"){const r=scoreAdn(v);res.p=r.p;res.flag=r.flag?{level:"soft",why:r.flag}:null;}
+    if(item.kw){const r=scoreKw(item,v);res.p=r.p;res.flag=r.flag;}
+    answer(item,res);
+  });
+}
+
+function answer(item,res){
+  A[item.id]=res; inp.innerHTML="";
+  if(document.activeElement) document.activeElement.blur?.();
+  add("me",res.v); i++;
+  // La pregunta de dudas solo aparece si respondió "tengo algunas dudas"
+  if(Q[i] && Q[i].id==="dudas" && !(A.modelo && A.modelo.p===2)) i++;
+  ask();
+}
+
+function evaluate(){
+  let got=0,max=0; const flags=[];
+  Q.forEach(q=>{const a=A[q.id]; if(a&&typeof a.p==="number"){got+=a.p;max+=3;} if(a&&a.flag) flags.push(a.flag);});
+  const pct=Math.round(got/max*100);
+  const hard=flags.some(f=>f.level==="hard");
+  const color = (pct>=75 && flags.length===0) ? "V" : (!hard && pct>=55 && flags.length<=2) ? "A" : "R";
+  return {pct,color,flags};
+}
+
+async function finish(){
+  const nombre=A.nombre.v, n=nombre.split(" ")[0], ev=evaluate();
+  await typing(700);
+  if(ev.color==="R"){
+    add("bot",`¡Muchas gracias por tu tiempo y tu interés en GES Agentes, ${n}! Te deseamos muchos éxitos.`);
+    inp.innerHTML=""; stepEl.textContent="Listo"; bar.style.width="100%"; scroll(); return;
+  }
+  add("bot",`¡Listo, ${n}! Gracias por tu tiempo.\n\nÚltimo paso: tocá el botón para escribirnos por WhatsApp. El mensaje ya está armado con tus datos y respuestas; solo tenés que enviarlo.`);
+  const lines=[`Hola, soy ${nombre}. Completé el cuestionario de GES Agentes por Instagram. Mi celular es ${A.tel.v}`,``,`Edad: ${A.edad.v}`];
+  Q.filter(q=>!q.intro).forEach(q=>{ if(A[q.id]) lines.push(`• ${label(q)}: ${A[q.id].v}`); });
+  lines.push(``,`Ref: GES-${ev.pct}${ev.color}${ev.flags.length}`);
+  const text=lines.join("\n");
+  const url=`https://wa.me/${WHATSAPP}?text=${encodeURIComponent(text)}`;
+  inp.innerHTML=`<div class="final">
+    <a class="send" href="${url}" target="_blank" rel="noopener">Escribir por WhatsApp</a>
+    <button class="send ghost" id="copy" type="button">Copiar mensaje</button>
+    <div class="hint" id="copyhint">Si WhatsApp no se abre, copiá el mensaje y mandalo al ${WA_SHOW}.</div>
+    <pre class="sum" id="sum" tabindex="0"></pre></div>`;
+  document.getElementById("sum").textContent=text;
+  document.getElementById("copy").onclick=async()=>{
+    const h=document.getElementById("copyhint");
+    try{await navigator.clipboard.writeText(text);h.textContent=`Copiado. Pegalo en un chat de WhatsApp con el ${WA_SHOW}.`;}
+    catch(e){const r=document.createRange();r.selectNodeContents(document.getElementById("sum"));const s=getSelection();s.removeAllRanges();s.addRange(r);h.textContent="Texto seleccionado: copialo (mantené presionado en el celular).";}
+  };
+  scroll();
+}
+const LABELS={exp:"Hoy y experiencia",zona:"Zonas y horas",adn:"Primera propiedad",leads:"Qué busca",modelo:"Esquema sin sueldo fijo",dudas:"Dudas"};
+function label(q){return LABELS[q.id]||q.id}
+
+if("serviceWorker" in navigator && location.protocol==="https:") navigator.serviceWorker.register("sw.js").catch(()=>{});
+ask(true);
+</script>
+</body>
+</html>
